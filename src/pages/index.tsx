@@ -1,9 +1,31 @@
-import type { NextPage } from "next";
+import type {NextPage} from "next";
+import {signIn, signOut, useSession} from "next-auth/react";
 import Head from "next/head";
-import { trpc } from "../utils/trpc";
+import {useEffect} from "react";
+import {FaDiscord, FaLeaf} from "react-icons/fa";
 
 const Home: NextPage = () => {
-  const hello = trpc.useQuery(["example.hello", { text: "from tRPC" }]);
+  const { data } = useSession();
+
+  useEffect(() => {
+    console.log(data )
+  }, [data]);
+
+
+  if (!data)
+    return (
+      <div className="min-h-screen flex grow flex-col items-center justify-center">
+        <div className="text-2xl font-bold">Please log in below</div>
+        <div className="p-4" />
+        <button
+          onClick={() => signIn("discord")}
+          className="flex items-center gap-2 rounded bg-gray-200 px-4 py-2 text-2xl text-black"
+        >
+          <span>Sign in with Discord</span>
+          <FaDiscord />
+        </button>
+      </div>
+    );
 
   return (
     <>
@@ -13,76 +35,30 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <nav className="w-full absolute p-4">
+        <button
+          onClick={() => signOut()}
+          className="ml-auto flex items-center gap-2 rounded bg-gray-200 px-4 py-2 text-2xl text-black"
+        >
+          <span>Sign out</span>
+          <FaLeaf/>
+        </button>
+      </nav>
       <main className="container mx-auto flex flex-col items-center justify-center min-h-screen p-4">
         <h1 className="text-5xl md:text-[5rem] leading-normal font-extrabold text-gray-700">
           Create <span className="text-purple-300">T3</span> App
         </h1>
         <p className="text-2xl text-gray-700">This stack uses:</p>
-        <div className="grid gap-3 pt-3 mt-3 text-center md:grid-cols-2 lg:w-2/3">
-          <TechnologyCard
-            name="NextJS"
-            description="The React framework for production"
-            documentation="https://nextjs.org/"
-          />
-          <TechnologyCard
-            name="TypeScript"
-            description="Strongly typed programming language that builds on JavaScript, giving you better tooling at any scale"
-            documentation="https://www.typescriptlang.org/"
-          />
-          <TechnologyCard
-            name="TailwindCSS"
-            description="Rapidly build modern websites without ever leaving your HTML"
-            documentation="https://tailwindcss.com/"
-          />
-          <TechnologyCard
-            name="tRPC"
-            description="End-to-end typesafe APIs made easy"
-            documentation="https://trpc.io/"
-          />
-          <TechnologyCard
-            name="Next-Auth"
-            description="Authentication for Next.js"
-            documentation="https://next-auth.js.org/"
-          />
-          <TechnologyCard
-            name="Prisma"
-            description="Build data-driven JavaScript & TypeScript apps in less time"
-            documentation="https://www.prisma.io/docs/"
-          />
-        </div>
-        <div className="pt-6 text-2xl text-blue-500 flex justify-center items-center w-full">
-          {hello.data ? <p>{hello.data.greeting}</p> : <p>Loading..</p>}
+        <div className="mx-auto p-10 bg-black text-white">
+          <div className="flex animate-fade-in-delay justify-center p-8">
+            <FaDiscord/>
+          </div>
         </div>
       </main>
     </>
   );
 };
 
+
+
 export default Home;
-
-type TechnologyCardProps = {
-  name: string;
-  description: string;
-  documentation: string;
-};
-
-const TechnologyCard = ({
-  name,
-  description,
-  documentation,
-}: TechnologyCardProps) => {
-  return (
-    <section className="flex flex-col justify-center p-6 duration-500 border-2 border-gray-500 rounded shadow-xl motion-safe:hover:scale-105">
-      <h2 className="text-lg text-gray-700">{name}</h2>
-      <p className="text-sm text-gray-600">{description}</p>
-      <a
-        className="mt-3 text-sm underline text-violet-500 decoration-dotted underline-offset-2"
-        href={documentation}
-        target="_blank"
-        rel="noreferrer"
-      >
-        Documentation
-      </a>
-    </section>
-  );
-};
